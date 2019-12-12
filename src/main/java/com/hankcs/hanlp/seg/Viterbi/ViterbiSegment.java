@@ -196,7 +196,7 @@ public class ViterbiSegment extends WordBasedSegment
         return vertexList;
     }
 
-    private void loadCustomDic(String customPath, boolean isCache)
+    protected void loadCustomDic(String customPath, boolean isCache)
     {
         if (TextUtility.isBlank(customPath))
         {

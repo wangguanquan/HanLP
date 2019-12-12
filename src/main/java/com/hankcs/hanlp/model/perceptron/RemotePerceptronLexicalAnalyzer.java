@@ -19,6 +19,7 @@ package com.hankcs.hanlp.model.perceptron;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.io.ByteArrayOtherStream;
 import com.hankcs.hanlp.model.perceptron.model.LinearModel;
+import com.hankcs.hanlp.seg.Remote;
 import sun.misc.Contended;
 
 import java.io.IOException;
@@ -93,7 +94,7 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
 
     public RemotePerceptronLexicalAnalyzer() {
         // Create a un-mutable feature map
-        super(new LinearModel(RemoteLexicalAnalyzer.createEmptyFeatureMap()), null, null);
+        super(new LinearModel(Remote.createEmptyFeatureMap()), null, null);
     }
 
 //    /**

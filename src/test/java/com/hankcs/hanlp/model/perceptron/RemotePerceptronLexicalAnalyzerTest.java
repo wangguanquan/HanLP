@@ -17,8 +17,8 @@
 package com.hankcs.hanlp.model.perceptron;
 
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.collection.trie.datrie.MutableDoubleArrayTrie;
 import com.hankcs.hanlp.dictionary.other.CharTable;
+import com.hankcs.hanlp.seg.Remote;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import junit.framework.TestCase;
@@ -46,7 +46,7 @@ public class RemotePerceptronLexicalAnalyzerTest extends TestCase {
 
     public synchronized void testLazyLoad() throws IOException, InterruptedException {
         HanLP.Config.enableDebug();
-        RemoteLexicalAnalyzer analyzer = new RemotePerceptronLexicalAnalyzer();
+        RemotePerceptronLexicalAnalyzer analyzer = new RemotePerceptronLexicalAnalyzer();
         analyzer.lazy("http://localhost/hanlp/cws.bin.3"
             , "http://localhost/hanlp/pos.bin.3"
             , "http://localhost/hanlp/ner.bin.3");
@@ -115,7 +115,7 @@ public class RemotePerceptronLexicalAnalyzerTest extends TestCase {
     }
 
     public void testSupport() {
-        String s = RemoteLexicalAnalyzer.getSupportScheme();
+        String s = Remote.getSupportScheme();
         System.out.println(s);
     }
 

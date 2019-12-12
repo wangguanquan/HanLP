@@ -38,8 +38,8 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/data</directory>
-                <targetPath>data</targetPath>
+                <directory>${basedir}/data/dictionary</directory>
+                <targetPath>data/dictionary</targetPath>
             </resource>
         </resources>
         <plugins>
