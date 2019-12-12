@@ -4,7 +4,7 @@
 
     <groupId>com.hankcs</groupId>
     <artifactId>hanlp</artifactId>
-    <version>portable-1.7.5</version>
+    <version>portable-1.7.5.remote</version>
 
     <name>HanLP</name>
     <url>https://github.com/hankcs/HanLP</url>
@@ -36,6 +36,12 @@
     </scm>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/data</directory>
+                <targetPath>data</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <!-- 编译插件, 设定JDK版本 -->
             <plugin>
@@ -93,41 +99,6 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-            <!-- Javadoc -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- GPG -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <!-- This is necessary for gpg to not try to use the pinentry programs -->
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!--surefire插件，避免mvn test console乱码-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -150,7 +121,7 @@
         </repository>
     </distributionManagement>
     <properties>
-        <java.version>1.6</java.version>
+        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
@@ -170,14 +141,68 @@
     </dependencies>
     <!--禁用Java8过于严格的javadoc警告-->
     <profiles>
+<!--        <profile>-->
+<!--            <id>disable-java8-doclint</id>-->
+<!--            <activation>-->
+<!--                <jdk>[1.8,)</jdk>-->
+<!--            </activation>-->
+<!--            <properties>-->
+<!--                <additionalparam>-Xdoclint:none</additionalparam>-->
+<!--            </properties>-->
+<!--            <build>-->
+<!--                <plugins>-->
+<!--                    &lt;!&ndash; Javadoc &ndash;&gt;-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.apache.maven.plugins</groupId>-->
+<!--                        <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--                        <version>2.9.1</version>-->
+<!--                        <executions>-->
+<!--                            <execution>-->
+<!--                                <phase>package</phase>-->
+<!--                                <goals>-->
+<!--                                    <goal>jar</goal>-->
+<!--                                </goals>-->
+<!--                            </execution>-->
+<!--                        </executions>-->
+<!--                    </plugin>-->
+<!--                    &lt;!&ndash; GPG &ndash;&gt;-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.apache.maven.plugins</groupId>-->
+<!--                        <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                        <version>1.6</version>-->
+<!--                        <executions>-->
+<!--                            <execution>-->
+<!--                                <phase>verify</phase>-->
+<!--                                <goals>-->
+<!--                                    <goal>sign</goal>-->
+<!--                                </goals>-->
+<!--                                <configuration>-->
+<!--                                    &lt;!&ndash; This is necessary for gpg to not try to use the pinentry programs &ndash;&gt;-->
+<!--                                    <gpgArguments>-->
+<!--                                        <arg>&#45;&#45;pinentry-mode</arg>-->
+<!--                                        <arg>loopback</arg>-->
+<!--                                    </gpgArguments>-->
+<!--                                </configuration>-->
+<!--                            </execution>-->
+<!--                        </executions>-->
+<!--                    </plugin>-->
+<!--                </plugins>-->
+<!--            </build>-->
+<!--        </profile>-->
         <profile>
-            <id>disable-java8-doclint</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <additionalparam>-Xdoclint:none</additionalparam>
-            </properties>
+            <id>local</id>
+            <distributionManagement>
+                <repository>
+                    <id>vipmro-releases</id>
+                    <name>VIPMRO Releases</name>
+                    <url>http://nexus.vipmro.org/content/repositories/vipmro-releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>vipmro-snapshots</id>
+                    <name>VIPMRO Snapshots</name>
+                    <url>http://nexus.vipmro.org/content/repositories/vipmro-snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
         </profile>
     </profiles>
 </project>

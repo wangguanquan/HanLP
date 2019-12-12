@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
+public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer implements Learnable
 {
     public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter)
     {
@@ -163,6 +163,12 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
         if (posTagger != null && !getPerceptronPOSTagger().learn(sentence)) return false;
         if (neRecognizer != null && !getPerceptionNERecognizer().learn(sentence)) return false;
         return true;
+    }
+
+    @Override
+    public boolean save() throws UnsupportedOperationException {
+        // TODO save to local
+        throw new UnsupportedOperationException();
     }
 
     /**

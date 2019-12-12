@@ -22,16 +22,18 @@ public class ConsoleLogger implements ILogger
      * 默认日志
      */
     public static ILogger logger = new ConsoleLogger();
-    long start;
+    private long start;
 
     public void out(String format, Object... args)
     {
         System.out.printf(format, args);
+        System.out.println();
     }
 
     public void err(String format, Object... args)
     {
         System.err.printf(format, args);
+        System.out.println();
     }
 
     public void start(String format, Object... args)

@@ -52,6 +52,9 @@ public class CoreStopWordDictionary
      */
     public static void load(String coreStopWordDictionaryPath, boolean loadCacheIfPossible)
     {
+        if (HanLP.Config.DEBUG) {
+            logger.info("加载停用词：" + coreStopWordDictionaryPath);
+        }
         ByteArray byteArray = loadCacheIfPossible ? ByteArray.createByteArray(coreStopWordDictionaryPath + Predefine.BIN_EXT) : null;
         if (byteArray == null)
         {
