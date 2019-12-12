@@ -40,6 +40,9 @@
             <resource>
                 <directory>${basedir}/data/dictionary</directory>
                 <targetPath>data/dictionary</targetPath>
+                <excludes>
+                    <exclude>*.txt</exclude>
+                </excludes>
             </resource>
         </resources>
         <plugins>
