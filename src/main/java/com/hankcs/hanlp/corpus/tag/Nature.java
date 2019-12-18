@@ -859,4 +859,13 @@ public class Nature
     {
         return values;
     }
+
+    /**
+     * Returns the {@link Nature}'s name
+     *
+     * @return string value
+     */
+    public String getName() {
+        return name;
+    }
 }
