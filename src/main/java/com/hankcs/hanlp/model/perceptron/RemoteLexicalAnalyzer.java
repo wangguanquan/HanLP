@@ -16,14 +16,46 @@
 
 package com.hankcs.hanlp.model.perceptron;
 
+import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
+import com.hankcs.hanlp.model.perceptron.tagset.CWSTagSet;
 import com.hankcs.hanlp.seg.Remote;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Create by guanquan.wang at 2019-12-12 10:02
  */
 public interface RemoteLexicalAnalyzer extends Remote {
+
+    /**
+     * Create an empty and un-mutable feature map
+     *
+     * @return {@link FeatureMap}
+     */
+    static FeatureMap createEmptyFeatureMap() {
+        FeatureMap featureMap = new FeatureMap() {
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public Set<Map.Entry<String, Integer>> entrySet() {
+                return Collections.emptySet(); // Empty set
+            }
+
+            @Override
+            public int idOf(String string) {
+                return -1; // OutOfBound index
+            }
+        };
+        featureMap.mutable = false;
+        featureMap.tagSet = new CWSTagSet();
+        return featureMap;
+    }
 
     /**
      * Lazy load remote/local model file

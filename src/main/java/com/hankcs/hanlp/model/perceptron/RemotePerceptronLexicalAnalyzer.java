@@ -19,12 +19,12 @@ package com.hankcs.hanlp.model.perceptron;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.io.ByteArrayOtherStream;
 import com.hankcs.hanlp.model.perceptron.model.LinearModel;
-import com.hankcs.hanlp.seg.Remote;
 import sun.misc.Contended;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +32,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.hankcs.hanlp.classification.utilities.io.ConsoleLogger.logger;
+import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * Create by guanquan.wang at 2019-12-05 09:15
@@ -94,7 +94,7 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
 
     public RemotePerceptronLexicalAnalyzer() {
         // Create a un-mutable feature map
-        super(new LinearModel(Remote.createEmptyFeatureMap()), null, null);
+        super(new LinearModel(RemoteLexicalAnalyzer.createEmptyFeatureMap()), null, null);
     }
 
 //    /**
@@ -145,7 +145,7 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
             try {
                 refresh();
             } catch (IOException e) {
-                logger.err("加载失败");
+                logger.warning("加载失败");
                 e.printStackTrace();
             }
         }).start();
@@ -169,19 +169,9 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
      * @throws IOException if I/O error occur
      */
     @Override
-    public synchronized boolean reload(String cwsModelFile, String posModelFile, String nerModelFile) throws IOException {
+    public boolean reload(String cwsModelFile, String posModelFile, String nerModelFile) throws IOException {
         checkAndCacheParam(cwsModelFile, posModelFile, nerModelFile);
-        return refresh();
-    }
-
-    /**
-     * Refresh all model
-     *
-     * @return true if success
-     */
-    @Override
-    public synchronized boolean refresh() throws IOException {
-        return refresh(false);
+        return refresh(true);
     }
 
     /**
@@ -195,7 +185,7 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
     @Override
     public synchronized boolean refresh(boolean mandatory) throws IOException {
         if (sync_status == 1 || sync_status == 2) {
-            logger.out("已有相同任务正在执行。");
+            logger.warning("已有相同任务正在执行。");
             return false;
         }
         boolean hasErr = false;
@@ -285,8 +275,8 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
             throw new IOException("未指定CWS文件路径.");
         }
 
-        if (sync_status == 1 || sync_status == 2) {
-            logger.out("已有相同任务正在执行。");
+        if (cwsModelFile.equals(cache.get("CP")) && (sync_status == 1 || sync_status == 2)) {
+            logger.warning("已有相同任务正在执行。");
             throw new IOException("已有相同任务正在执行。");
         }
 
@@ -439,24 +429,28 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
                 case local:
                     Path localPath = Paths.get(path);
                     // File not exists
-                    if (!Files.exists(localPath)) {
-                        throw new IOException("文件" + path + "不存在");
-                    }
-                    FileTime fileTime = Files.getLastModifiedTime(localPath);
-                    modified = lm == null || fileTime.toInstant().isAfter(lm);
-                    if (modified) {
-                        cache.put("LM" + path, fileTime.toInstant());
+                    if (!Files.exists(localPath) && HanLP.Config.IOAdapter != null) {
+                        // Check if in jar
+                        URL url = getClass().getClassLoader().getResource(path);
+                        if (url == null)
+                            throw new IOException("文件" + path + "不存在");
+                        else
+                            modified = false;
+                    } else {
+                        FileTime fileTime = Files.getLastModifiedTime(localPath);
+                        modified = lm == null || fileTime.toInstant().isAfter(lm);
+                        if (modified) {
+                            cache.put("LM" + path, fileTime.toInstant());
+                        }
                     }
                     break;
             }
         }
         if (modified) {
-            if (HanLP.Config.DEBUG) {
-                logger.start("开始拉取[%s]", path);
-            }
+            logger.info("开始拉取:" + path);
             request(path, scheme, callback);
-        } else if (HanLP.Config.DEBUG) {
-            logger.out("[%s]没有更新无需更新", path);
+        } else {
+            logger.info(path + "没有更新无需更新");
         }
     }
 
@@ -468,23 +462,17 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
         Object scws = cache.remove("SCWS"), spos = cache.remove("SPOS"), sner = cache.remove("SNER");
         if (scws instanceof PerceptronSegmenter) {
             this.segmenter = (PerceptronSegmenter) scws;
-            if (HanLP.Config.DEBUG) {
-                logger.finish("刷新[%s]成功", cache.get("cws"));
-            }
+            logger.info("刷新[%s]成功" + cache.get("cws"));
         }
         if (spos instanceof PerceptronPOSTagger) {
             this.posTagger = (PerceptronPOSTagger) spos;
             this.config.speechTagging = true;
-            if (HanLP.Config.DEBUG) {
-                logger.finish("刷新[%s]成功", cache.get("pos"));
-            }
+            logger.info("刷新[%s]成功" + cache.get("pos"));
         }
         if (sner instanceof PerceptronNERecognizer) {
             this.neRecognizer = (PerceptronNERecognizer) sner;
             this.config.ner = true;
-            if (HanLP.Config.DEBUG) {
-                logger.finish("刷新[%s]成功", cache.get("ner"));
-            }
+            logger.info("刷新[%s]成功" + cache.get("ner"));
         }
     }
 
@@ -496,8 +484,6 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
         cache.remove("SCWS");
         cache.remove("SPOS");
         cache.remove("SNER");
-        if (HanLP.Config.DEBUG) {
-            logger.finish("刷新失败");
-        }
+        logger.warning("刷新[%s]失败" + cache.get("cws"));
     }
 }

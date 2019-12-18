@@ -16,8 +16,7 @@
 
 package com.hankcs.hanlp.seg;
 
-import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
-import com.hankcs.hanlp.model.perceptron.tagset.CWSTagSet;
+import com.hankcs.hanlp.HanLP;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -30,9 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 
@@ -69,7 +65,9 @@ public interface Remote {
      *
      * @return true if success
      */
-    boolean refresh() throws IOException;
+    default boolean refresh() throws IOException {
+        return refresh(false);
+    }
 
     /**
      * Refresh all model, Whether to force a refresh regardless of whether
@@ -174,18 +172,33 @@ public interface Remote {
                 remote(path, callback);
                 break;
             case local:
+                Response response;
                 Path localPath = Paths.get(path);
                 // File not exists
-                if (!Files.exists(localPath)) {
-                    callback.onFailure(new IOException("文件" + path + "不存在"));
-                }
-                Response response = new Response();
-                response.code = 200;
-                try {
-                    response.stream = Files.newInputStream(localPath);
-                    callback.onResponse(response);
-                } catch (IOException e) {
-                    callback.onFailure(e);
+                if (!Files.exists(localPath) && HanLP.Config.IOAdapter != null) {
+                    // Check if in jar
+                    URL url = getClass().getClassLoader().getResource(path);
+                    if (url != null) {
+                        response = new Response();
+                        response.code = 200;
+                        try {
+                            response.stream = url.openStream();
+                            callback.onResponse(response);
+                        } catch (IOException e) {
+                            callback.onFailure(e);
+                        }
+                    } else {
+                        callback.onFailure(new IOException("文件" + path + "不存在"));
+                    }
+                } else {
+                    response = new Response();
+                    response.code = 200;
+                    try {
+                        response.stream = Files.newInputStream(localPath);
+                        callback.onResponse(response);
+                    } catch (IOException e) {
+                        callback.onFailure(e);
+                    }
                 }
                 break;
         }
@@ -238,33 +251,6 @@ public interface Remote {
             joiner.add(scheme == Scheme.local ? "本地文件" : scheme.name());
         }
         return joiner.toString();
-    }
-
-    /**
-     * Create an empty and un-mutable feature map
-     *
-     * @return {@link FeatureMap}
-     */
-    static FeatureMap createEmptyFeatureMap() {
-        FeatureMap featureMap = new FeatureMap() {
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public Set<Map.Entry<String, Integer>> entrySet() {
-                return Collections.emptySet(); // Empty set
-            }
-
-            @Override
-            public int idOf(String string) {
-                return -1; // OutOfBound index
-            }
-        };
-        featureMap.mutable = false;
-        featureMap.tagSet = new CWSTagSet();
-        return featureMap;
     }
 
     /**

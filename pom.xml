@@ -41,7 +41,16 @@
                 <directory>${basedir}/data/dictionary</directory>
                 <targetPath>data/dictionary</targetPath>
                 <excludes>
-                    <exclude>**/*/*.txt</exclude>
+                    <exclude>custom/*/*.txt</exclude>
+                    <exclude>**/*/*.csv</exclude>
+                    <exclude>*.csv</exclude>
+                    <exclude>CoreNatureDictionary.mini.txt</exclude>
+                    <exclude>CoreNatureDictionary.ngram.mini.txt</exclude>
+                    <exclude>CoreNatureDictionary.ngram.txt</exclude>
+                    <exclude>CoreNatureDictionary.tr.txt</exclude>
+                    <exclude>CoreNatureDictionary.ngram.txt.table.bin</exclude>
+                    <exclude>mro/*</exclude>
+<!--                    <exclude>CoreNatureDictionary.ngram.mini.txt.table.bin</exclude>-->
                 </excludes>
             </resource>
         </resources>
