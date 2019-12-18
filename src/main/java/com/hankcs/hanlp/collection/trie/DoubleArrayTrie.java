@@ -221,7 +221,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
 
         //used[begin] = true;
         used.set(begin);
-        
+
         size = (size > begin + siblings.get(siblings.size() - 1).code + 1) ? size
                 : begin + siblings.get(siblings.size() - 1).code + 1;
 
@@ -983,6 +983,18 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
     public V get(char[] key)
     {
         int index = exactMatchSearch(key, 0, key.length, 0);
+        if (index >= 0)
+        {
+            return getValueAt(index);
+        }
+
+        return null;
+    }
+
+    @Override
+    public V get(char[] key, int begin, int end)
+    {
+        int index = exactMatchSearch(key, begin, end, 0);
         if (index >= 0)
         {
             return getValueAt(index);

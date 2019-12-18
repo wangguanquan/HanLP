@@ -26,6 +26,7 @@ public interface ITrie<V>
     boolean save(DataOutputStream out);
     boolean load(ByteArray byteArray, V[] value);
     V get(char[] key);
+    V get(char[] key, int begin, int end);
     V get(String key);
     V[] getValueArray(V[] a);
     boolean containsKey(String key);

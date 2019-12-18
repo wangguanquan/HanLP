@@ -2,6 +2,7 @@ package com.hankcs.hanlp.collection.trie.datrie;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.corpus.io.ICacheAble;
+import javafx.scene.effect.Blend;
 
 import java.io.*;
 import java.util.*;
@@ -248,20 +249,48 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param overwrite 是否覆盖
      * @return
      */
+    public boolean insert(char[] key, int from, int length, int value, boolean overwrite) {
+        int end = from + length;
+        if (from < 0 || length <= 0 || end >= key.length) {
+            return false;
+        }
+
+        if (key.length < end + 1) {
+            key = Arrays.copyOf(key, key.length + 1);
+        }
+        key[end] = UNUSED_CHAR;
+        int[] ids = this.charMap.toIdList(key, from, length + 1);
+
+        return insert(ids, value, overwrite);
+    }
+
+    /**
+     * 插入条目
+     *
+     * @param key       键
+     * @param value     值
+     * @param overwrite 是否覆盖
+     * @return
+     */
     public boolean insert(String key, int value, boolean overwrite)
     {
         if ((null == key) || key.length() == 0 || (key.indexOf(UNUSED_CHAR) != -1))
         {
             return false;
         }
+
+        int[] ids = this.charMap.toIdList(key + UNUSED_CHAR);
+
+        return insert(ids, value, overwrite);
+    }
+
+    protected boolean insert(int[] ids, int value, boolean overwrite) {
         if ((value < 0) || ((value & LEAF_BIT) != 0))
         {
             return false;
         }
 
         value = setLeafValue(value);
-
-        int[] ids = this.charMap.toIdList(key + UNUSED_CHAR);
 
         int fromState = 1; // 根节点的index为1
         int toState = 1;
@@ -813,6 +842,33 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
     }
 
     /**
+     * 精确查询
+     *
+     * @param key
+     * @return -1表示不存在
+     */
+    public int get(char[] key) {
+        return get(key, 0, key.length);
+    }
+
+    /**
+     * 精确查询
+     *
+     * @param key
+     * @return -1表示不存在
+     */
+    public int get(char[] key, int begin, int length) {
+        int state = 1;
+        int[] ids = charMap.toIdList(key, begin, length);
+        state = transfer(state, ids);
+        if (state < 0)
+        {
+            return -1;
+        }
+        return stateValue(state);
+    }
+
+    /**
      * 设置键值 （同put）
      *
      * @param key
@@ -837,6 +893,30 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
     }
 
     /**
+     * 设置键值 （同put）
+     *
+     * @param key
+     * @param value
+     * @return 是否设置成功（失败的原因是键值不合法）
+     */
+    public boolean set(char[] key, int from, int length, int value)
+    {
+        return insert(key, from, length, value, true);
+    }
+
+    /**
+     * 设置键值 （同set）
+     *
+     * @param key
+     * @param value
+     * @return 是否设置成功（失败的原因是键值不合法）
+     */
+    public boolean put(char[] key, int from, int length, int value)
+    {
+        return insert(key, from, length, value, true);
+    }
+
+    /**
      * 删除键
      *
      * @param key
@@ -853,15 +933,63 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param key
      * @return 值
      */
+    public int remove(char[] key)
+    {
+        return remove(key, 0, key.length);
+    }
+
+    /**
+     * 删除键
+     *
+     * @param key
+     * @return 值
+     */
+    public int remove(char[] key, int from, int length)
+    {
+        return delete(key);
+    }
+
+    /**
+     * 删除键
+     *
+     * @param key
+     * @return 值
+     */
     public int delete(String key)
     {
         if (key == null)
         {
             return -1;
         }
-        int curState = 1;
         int[] ids = this.charMap.toIdList(key);
 
+        return deleteById(ids);
+    }
+
+    /**
+     * 删除键
+     *
+     * @param key
+     * @return 值
+     */
+    public int delete(char[] key)
+    {
+        return delete(key, 0, key.length);
+    }
+
+    /**
+     * 删除键
+     *
+     * @param key
+     * @return 值
+     */
+    public int delete(char[] key, int from, int length)
+    {
+        return deleteById(this.charMap.toIdList(key, from, length));
+    }
+
+    protected int deleteById(int[] ids) {
+        int curState = 1;
         int[] path = new int[ids.length + 1];
         int i = 0;
         for (; i < ids.length; i++)

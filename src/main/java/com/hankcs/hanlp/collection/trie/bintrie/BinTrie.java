@@ -163,6 +163,20 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
         return (V) branch.getValue();
     }
 
+    public V get(char[] key, int begin, int end) {
+        BaseNode branch = this;
+        for (; begin < end; begin++)
+        {
+            if (branch == null) return null;
+            branch = branch.getChild(key[begin]);
+        }
+
+        if (branch == null) return null;
+        // 下面这句可以保证只有成词的节点被返回
+        if (!(branch.status == Status.WORD_END_3 || branch.status == Status.WORD_MIDDLE_2)) return null;
+        return (V) branch.getValue();
+    }
+
     @Override
     public V[] getValueArray(V[] a)
     {

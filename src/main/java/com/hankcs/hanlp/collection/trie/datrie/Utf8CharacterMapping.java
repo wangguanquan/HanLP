@@ -2,7 +2,10 @@ package com.hankcs.hanlp.collection.trie.datrie;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * UTF-8编码到int的映射
@@ -12,7 +15,7 @@ public class Utf8CharacterMapping implements CharacterMapping, Serializable
     private static final long serialVersionUID = -6529481088518753872L;
     private static final int N = 256;
     private static final int[] EMPTYLIST = new int[0];
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     @Override
     public int getInitSize()
@@ -41,6 +44,21 @@ public class Utf8CharacterMapping implements CharacterMapping, Serializable
         for (int i = 0; i < res.length; i++)
         {
             res[i] = bytes[i] & 0xFF; // unsigned byte
+        }
+        if ((res.length == 1) && (res[0] == 0))
+        {
+            return EMPTYLIST;
+        }
+        return res;
+    }
+
+    @Override
+    public int[] toIdList(char[] key, int begin, int length) {
+        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(key, begin, length));
+        int[] res = new int[byteBuffer.limit()];
+        for (int i = 0; i < res.length; i++)
+        {
+            res[i] = byteBuffer.get() & 0xFF; // unsigned byte
         }
         if ((res.length == 1) && (res[0] == 0))
         {

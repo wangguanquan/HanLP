@@ -13,6 +13,8 @@ public interface CharacterMapping
 
     int[] toIdList(String key);
 
+    int[] toIdList(char[] key, int begin, int length);
+
     int[] toIdList(int codePoint);
 
     String toString(int[] ids);

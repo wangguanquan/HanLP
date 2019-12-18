@@ -117,6 +117,11 @@ public class DartMap<V> extends DoubleArray implements Map<String, V>, ITrie<V>
         return get(new String(key));
     }
 
+    @Override
+    public V get(char[] key, int begin, int end) {
+        return get(new String(key, begin, end));
+    }
+
     public V get(String key)
     {
         int id = exactMatchSearch(key);
