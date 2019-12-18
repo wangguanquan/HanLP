@@ -24,6 +24,7 @@ import com.hankcs.hanlp.seg.WordBasedSegment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
+import com.hankcs.hanlp.utility.Predefine;
 import com.hankcs.hanlp.utility.TextUtility;
 
 import java.io.File;
@@ -204,16 +205,23 @@ public class ViterbiSegment extends WordBasedSegment
         }
         logger.info("开始加载自定义词典:" + customPath);
         DoubleArrayTrie<CoreDictionary.Attribute> dat = new DoubleArrayTrie<CoreDictionary.Attribute>();
-        String path[] = customPath.split(";");
+        String[] path = customPath.split(";");
         String mainPath = path[0];
-        StringBuilder combinePath = new StringBuilder();
-        for (String aPath : path)
+        if (!mainPath.endsWith(Predefine.BIN_EXT))
         {
-            combinePath.append(aPath.trim());
+            StringBuilder combinePath = new StringBuilder();
+            for (String aPath : path) {
+                combinePath.append(aPath.trim());
+            }
+            File file = new File(mainPath);
+            mainPath = file.getParent() + "/" + Math.abs(combinePath.toString().hashCode());
+            mainPath = mainPath.replace("\\", "/");
         }
-        File file = new File(mainPath);
-        mainPath = file.getParent() + "/" + Math.abs(combinePath.toString().hashCode());
-        mainPath = mainPath.replace("\\", "/");
+        else
+        {
+            mainPath = mainPath.substring(0, mainPath.length() - Predefine.BIN_EXT.length());
+        }
+
         if (CustomDictionary.loadMainDictionary(mainPath, path, dat, isCache))
         {
             this.setDat(dat);

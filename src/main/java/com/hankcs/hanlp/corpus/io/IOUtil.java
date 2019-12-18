@@ -270,9 +270,9 @@ public class IOUtil
         ByteArrayOutputStream data = new ByteArrayOutputStream();
 
         int readBytes;
-        byte[] buffer = new byte[Math.max(is.available(), 4096)]; // 最低4KB的缓冲区
+        byte[] buffer = new byte[1 << 13]; // 8KB的缓冲区
 
-        while ((readBytes = is.read(buffer, 0, buffer.length)) != -1)
+        while ((readBytes = is.read(buffer)) > 0)
         {
             data.write(buffer, 0, readBytes);
         }

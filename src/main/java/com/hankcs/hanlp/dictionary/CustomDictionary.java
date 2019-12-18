@@ -67,7 +67,8 @@ public class CustomDictionary
     public static boolean loadMainDictionary(String mainPath, String path[], DoubleArrayTrie<CoreDictionary.Attribute> dat, boolean isCache)
     {
         logger.info("自定义词典开始加载:" + mainPath);
-        if (loadDat(mainPath, dat)) return true;
+//        if (loadDat(mainPath, dat)) return true;
+        loadDat(mainPath, dat);
         TreeMap<String, CoreDictionary.Attribute> map = new TreeMap<String, CoreDictionary.Attribute>();
         LinkedHashSet<Nature> customNatureCollector = new LinkedHashSet<Nature>();
         try
@@ -83,6 +84,11 @@ public class CustomDictionary
                 {
                     // 有默认词性
                     String nature = fileName.substring(cut + 1);
+                    // Remove file suffix if exists
+                    int n;
+                    if ((n = nature.indexOf('.')) > 0) {
+                        nature = nature.substring(0, n);
+                    }
                     p = file.getParent() + File.separator + fileName.substring(0, cut);
                     try
                     {
@@ -154,7 +160,7 @@ public class CustomDictionary
 
     private static boolean loadMainDictionary(String mainPath)
     {
-        return loadMainDictionary(mainPath, HanLP.Config.CustomDictionaryPath, CustomDictionary.dat, true);
+        return loadMainDictionary(mainPath, HanLP.Config.CustomDictionaryPath, CustomDictionary.dat, HanLP.Config.IOAdapter == null);
     }
 
 
@@ -375,7 +381,7 @@ public class CustomDictionary
      * 获取本地词典更新状态
      * @return true 表示本地词典比缓存文件新，需要删除缓存
      */
-    private static boolean isDicNeedUpdate(String mainPath, String path[])
+    private static boolean isDicNeedUpdate(String mainPath, String[] path)
     {
         if (HanLP.Config.IOAdapter != null &&
             !HanLP.Config.IOAdapter.getClass().getName().contains("com.hankcs.hanlp.corpus.io.FileIOAdapter"))
