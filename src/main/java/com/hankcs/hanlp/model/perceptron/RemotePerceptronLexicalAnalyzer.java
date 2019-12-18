@@ -421,6 +421,7 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
                 case https:
                     String k_lm = "LM" + path, k_et = "ET" + path;
                     Object et = cache.get(k_et);
+                    // Refresh last modified time and ETag
                     modified = remoteCheck(path, lm, (String) et, e -> {
                         cache.put(k_lm, e.lastModified);
                         cache.put(k_et, e.eTag);
@@ -439,6 +440,7 @@ public class RemotePerceptronLexicalAnalyzer extends PerceptronLexicalAnalyzer i
                     } else {
                         FileTime fileTime = Files.getLastModifiedTime(localPath);
                         modified = lm == null || fileTime.toInstant().isAfter(lm);
+                        // Refresh last modified time
                         if (modified) {
                             cache.put("LM" + path, fileTime.toInstant());
                         }
