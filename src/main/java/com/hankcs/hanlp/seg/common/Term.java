@@ -89,4 +89,9 @@ public class Term
         }
         return super.equals(obj);
     }
+
+    @Override
+    public int hashCode() {
+        return nature.hashCode() << 24 | (word.hashCode() & 0xFFFFFF);
+    }
 }

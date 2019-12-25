@@ -76,5 +76,7 @@ public class RemoteViterbiSegmentTest extends TestCase {
         System.out.println(segment.seg("光电传感器O300.GR-11135876(Baumer)可推荐".toLowerCase()));
         System.out.println(segment.seg("明装式控制箱 XK-B1/-Y 正泰".toLowerCase()));
         System.out.println(segment.seg("正泰断路器 DZ47　3P32A 正泰".toLowerCase()));
+        System.out.println(segment.seg("ABB接触器辅助头 CAL5-11 ABB".toLowerCase()));
+        System.out.println(segment.seg("PLCAI模块 6ED1055-1MA00-0BA0(SIEMENS) 可推荐".toLowerCase()));
     }
 }
